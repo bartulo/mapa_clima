@@ -34,8 +34,7 @@ socket.on('procesado', (data) => {
 });
 
 socket.on('descargar_pdf', () => {
-  console.log('g');
-  window.open('http://localhost:5000/download')
+  window.open(`${window.location}/download`)
 });
 
 map.on('click', (e) => {
