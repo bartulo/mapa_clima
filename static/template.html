@@ -3,12 +3,41 @@
 <style>
     @page {
         size: a4 portrait;
-        @frame header_frame {           /* Static Frame */
-            -pdf-frame-content: header_content;
-            left: 50pt; width: 512pt; top: 50pt; height: 40pt;
+        @frame ministerio_logo {           /* Static Frame */
+            -pdf-frame-content: ministerio_logo;
+            left: 360pt; width: 140pt; top: 60pt; height: 40pt;
         }
-        @frame content_frame {          /* Content Frame */
-            left: 50pt; width: 512pt; top: 90pt; height: 632pt;
+        @frame tragsa_logo {           /* Static Frame */
+            -pdf-frame-content: tragsa_logo;
+            left: 440pt; width: 60pt; top: 100pt; height: 40pt;
+        }
+        @frame adcif_logo {           /* Static Frame */
+            -pdf-frame-content: adcif_logo;
+            left: 380pt; width: 50pt; top: 100pt; height: 40pt;
+        }
+        @frame header {           /* Static Frame */
+            -pdf-frame-content: header;
+            left: 80pt; width: 180pt; top: 60pt; height: 240pt;
+        }
+        @frame localizacion {           /* Static Frame */
+            -pdf-frame-content: localizacion;
+            left: 80pt; width: 420pt; top: 60pt; height: 70pt;
+            -pdf-frame-border: 1;
+        }
+        @frame localizacion {           /* Static Frame */
+            -pdf-frame-content: localizacion;
+            left: 80pt; width: 420pt; top: 140pt; height: 16pt;
+            -pdf-frame-border: 1;
+        }
+        @frame localizacion {           /* Static Frame */
+            -pdf-frame-content: localizacion;
+            left: 80pt; width: 420pt; top: 156pt; height: 16pt;
+            -pdf-frame-border: 1;
+        }
+        @frame meteograma {           /* Static Frame */
+            -pdf-frame-content: meteograma;
+            left: 80pt; width: 420pt; top: 172pt; height: 416pt;
+            -pdf-frame-border: 1;
         }
         @frame footer_frame {           /* Another static Frame */
             -pdf-frame-content: footer_content;
@@ -20,13 +49,22 @@
 
 <body>
     <!-- Content for Static Frame 'header_frame' -->
-    <div id="header_content">Meteograma</div>
+    <div id="header" style="background:darkblue; text-align:center; padding-top:10px; color:white; font-size:14px; line-height:27px">
+      INFORME METEOROLÓGICO</br>
+      Lugar</br>
+      Fecha
+    </div>
+    <div id="ministerio_logo"><img src="images/MITECO.png" /></div>
+    <div style="vertical-align:middle">
+      <div id="tragsa_logo"><img src="images/Logo_TRAGSA.jpg" /></div>
+      <div id="adcif_logo"><img style="width:35px" src="images/Logo-ADCIF-sin-textos.jpg" /></div>
+    </div>
+    <div id="meteograma"><img style="width:600px" src="images/meteograma.png" /></div>
 
     <!-- Content for Static Frame 'footer_frame' -->
-    <div id="footer_content">{{ pie_pagina }}</div>
+    <div id="footer_content">de momento nada</div>
 
     <!-- HTML Content -->
-    <img src="{{ url }}" />
 </body>
 </html>
 
