@@ -29,7 +29,7 @@ class MyModal {
 const myModal = new MyModal();
 
 socket.on('procesado', (data) => {
-  myModal.modalContent.innerHTML = `<img src="static/radiosondeos/prueba_21.png" />`
+  myModal.modalContent.innerHTML = `<img src="static/radiosondeos/prueba_${data.lat}_${data.lng}_15.png" />`
   myModal.data = data;
 });
 

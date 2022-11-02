@@ -5,53 +5,70 @@ import metpy.calc as mpcalc
 from metpy.cbook import get_test_data
 from metpy.plots import SkewT
 from metpy.units import units
+import xarray as xr
+import datetime
 
 def radiosondeo( lat, lng ):
 
     rucsounding = requests.get('https://rucsoundings.noaa.gov/get_soundings.cgi?data_source=GFS&start=latest&n_hrs=24&fcst_len=shortest&airport={}%2C%20{}&text=Ascii%20text%20%28GSL%20format%29'.format(lat, lng)).text
     data = rucsounding.split('\n')
 
-    i = 1
-    j = 0
-    sounding = []
+    fechas = []
+    temperaturas = []
+    dews = []
+    heights = []
+    winds = []
+    wsps = []
+    for i in range(6):
+      s = data[(38 * i) + 1].split()
+      fecha = datetime.datetime.strptime(','.join(s[1:]), '%H,%d,%b,%Y')
+      fechas.append(fecha)
+      temperatura = []
+      dew = []
+      pres = []
+      height = []
+      wind =[]
+      wsp = []
+      for n in range( (38 * i + 6), (38 * i + 25)):
+        linea = data[n].split()
+        pres.append(round(int(linea[1])/10))
+        height.append(int(linea[2]))
+        temperatura.append(int(linea[3])/10)
+        dew.append(int(linea[4])/10)
+        wind.append(int(linea[5]))
+        wsp.append(int(linea[6]))
 
-    while j < 6:
-      datos = defaultdict(list)
-      datos['fecha'] = (data[i])
-
-      for k in range(i+5, i+24):
-        linea = data[k].split()
-        datos['pres'].append(round(int(linea[1])/10))
-        datos['height'].append(int(linea[2]))
-        datos['tmp'].append(int(linea[3])/10)
-        datos['dew'].append(int(linea[4])/10)
-        datos['wdir'].append(int(linea[5]))
-        datos['wsp'].append(int(linea[6]))
-        
-      sounding.append(datos)  
-      datos = 0
-      i += 38
-      j += 1
-
-
+      temperaturas.append(temperatura)
+      heights.append(height)
+      dews.append(dew)
+      winds.append(wind)
+      wsps.append(wsp)
+    xarray_3d = xr.Dataset(
+        {'temp': (('fechas', 'pres'), temperaturas)},
+        coords = {
+            'fechas': fechas,
+            'pres': pres,
+            'dew': (('fechas', 'pres'), dews),
+            'height': (('fechas', 'pres'), heights),
+            'wdir': (('fechas', 'pres'), winds),
+            'wsp': (('fechas', 'pres'), wsps),
+        }
+    )
+    df = xarray_3d.to_dataframe()
 
     TAM_EJE = 16 # VALOR DEL TAMAÑO DE LETRA QUE QUIERES ASIGNAR
 
     plt.rc('ytick', labelsize=TAM_EJE) #### SOLO CAMBIA EL TAMAÑO DEL PRIMER EJE Y.
     plt.rc('xtick', labelsize=TAM_EJE)
 
-    salidaGFS = sounding[0]['fecha'].split()
-
-    for s in range(0, len(sounding)):
-      p = sounding[s]['pres'] * units.hPa
-      T = sounding[s]['tmp'] * units.degC
-      Td = sounding[s]['dew'] * units.degC
-      H = sounding[s]['height'] * units.m
-      wind_speed = sounding[s]['wsp'] * units.knots
-      wind_dir = sounding[s]['wdir'] * units.degrees
+    for fecha, d in df.groupby('fechas'):
+      p = d.reset_index('pres')['pres'].values * units.hPa
+      T = d['temp'].values * units.degC
+      Td = d['dew'].values * units.degC
+      H = d['height'].values * units.m
+      wind_speed = d['wsp'].values * units.knots
+      wind_dir = d['wdir'].values * units.degrees
       u, v = mpcalc.wind_components(wind_speed, wind_dir)
-
-      fecha_pronos = sounding[s]['fecha'].split()
 
       fig = plt.figure(figsize=(10, 10))
       skew = SkewT(fig, rotation = 40)
@@ -68,7 +85,7 @@ def radiosondeo( lat, lng ):
       skew.plot_mixing_lines(linewidth=0.8)
 
       for P, t, h in zip(p, T, H):
-        if P >= 100 * units.hPa:
+        if P.magnitude % 100  == 0 * units.hPa:
           skew.ax.text(1.01, P, h.m, transform=skew.ax.get_yaxis_transform(which='tick2'), fontsize=TAM_EJE) # AQUÍ SE CAMBIA EL TAMAÑO DEL EJE DE LA DERECHA
 
       skew.ax.set_ylim(1050, 200)
@@ -77,5 +94,7 @@ def radiosondeo( lat, lng ):
       skew.ax.set_ylabel('Presión (hPa)', multialignment='center', fontsize=TAM_EJE)
       skew.ax.set_xlabel('Temperatura (ºC)', multialignment='center', fontsize=TAM_EJE)
       #skew.ax.axvline(0 * units.degC, color='k', linewidth=0.8, linestyle = '--')
-      plt.title(str(" ".join(salidaGFS[:1]))+" válido: "+str(fecha_pronos[1])+"z"+" | "+"Lat: "+str(lat)+" Lon: "+str(lng), fontsize=TAM_EJE)
-      fig.savefig('radiosondeos/prueba_{}.png'.format(fecha_pronos[1]))
+      plt.title('GFS válido: {} | Lat: {:.2f} | Long: {:.2f}'.format(fecha.strftime('%d %b %HZ'), lat, lng), fontsize=TAM_EJE)
+      fig.savefig('static/radiosondeos/prueba_{}_{}_{}.png'.format(lat, lng, fecha.strftime('%H')))
+    
+    return fechas

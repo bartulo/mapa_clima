@@ -1,3 +1,7 @@
+import siphon
+from siphon.catalog import TDSCatalog
+from netCDF4 import num2date
+
 def meteograma(punto):
     horas = 48
 
