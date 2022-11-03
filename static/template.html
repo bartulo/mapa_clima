@@ -19,23 +19,42 @@
             -pdf-frame-content: header;
             left: 80pt; width: 180pt; top: 60pt; height: 240pt;
         }
-        @frame localizacion {           /* Static Frame */
-            -pdf-frame-content: localizacion;
+        @frame municipio {           /* Static Frame */
+            -pdf-frame-content: municipio;
+            left: 80pt; width: 210pt; top: 140pt; height: 20pt;
+        }
+        @frame provincia {           /* Static Frame */
+            -pdf-frame-content: provincia;
+            left: 290pt; width: 210pt; top: 140pt; height: 20pt;
+        }
+        @frame lat {           /* Static Frame */
+            -pdf-frame-content: lat;
+            left: 80pt; width: 140pt; top: 156pt; height: 20pt;
+        }
+        @frame long {           /* Static Frame */
+            -pdf-frame-content: long;
+            left: 220pt; width: 140pt; top: 156pt; height: 20pt;
+        }
+        @frame alt {           /* Static Frame */
+            -pdf-frame-content: alt;
+            left: 360pt; width: 140pt; top: 156pt; height: 20pt;
+        }
+        @frame border {           /* Static Frame */
+            -pdf-frame-content: recuadro;
             left: 80pt; width: 420pt; top: 60pt; height: 70pt;
             -pdf-frame-border: 1;
         }
-        @frame localizacion {           /* Static Frame */
-            -pdf-frame-content: localizacion;
+        @frame border {           /* Static Frame */
+            -pdf-frame-content: recuadro;
             left: 80pt; width: 420pt; top: 140pt; height: 16pt;
             -pdf-frame-border: 1;
         }
-        @frame localizacion {           /* Static Frame */
-            -pdf-frame-content: localizacion;
+        @frame border {           /* Static Frame */
+            -pdf-frame-content: recuadro;
             left: 80pt; width: 420pt; top: 156pt; height: 16pt;
             -pdf-frame-border: 1;
         }
         @frame meteograma {           /* Static Frame */
-            -pdf-frame-content: meteograma;
             left: 80pt; width: 420pt; top: 172pt; height: 416pt;
             -pdf-frame-border: 1;
         }
@@ -59,7 +78,15 @@
       <div id="tragsa_logo"><img src="images/Logo_TRAGSA.jpg" /></div>
       <div id="adcif_logo"><img style="width:35px" src="images/Logo-ADCIF-sin-textos.jpg" /></div>
     </div>
-    <div id="meteograma"><img style="width:600px" src="{{ url }}" /></div>
+    <div style="font-size:14px; padding-top:3px; text-align:center" id="municipio"><b>Municipio: </b>{{ municipio[:30] }}</div>
+    <div style="font-size:14px; padding-top:3px; text-align:center" id="provincia"><b>Provincia: </b>{{ provincia[:30] }}</div>
+    <div style="font-size:14px; padding-top:3px; text-align:center" id="lat"><b>Lat: </b>{{ "%0.2f" | format(lat) }}</div>
+    <div style="font-size:14px; padding-top:3px; text-align:center" id="long"><b>Long: </b>{{ "%0.2f" | format(lng) }}</div>
+    <div style="font-size:14px; padding-top:3px; text-align:center" id="alt"><b>Altitud: </b>{{ "%0.2f" | format(alt) }}</div>
+    {% for fecha in fechas %}
+    <div><img style="width:600px" src="static/radiosondeos/prueba_{{ lat }}_{{ lng }}_{{ fecha }}.png" /></div>
+    <pdf:nextpage>
+    {% endfor %}
 
     <!-- Content for Static Frame 'footer_frame' -->
     <div id="footer_content">de momento nada</div>

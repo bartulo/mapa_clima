@@ -18,7 +18,6 @@ class MyModal {
     this.crearPdfButton = document.getElementById('pdf');
     
     this.crearPdfButton.addEventListener('click', () => {
-      console.log(this.data);
       socket.emit('pdf', this.data);
     })
 
@@ -29,7 +28,7 @@ class MyModal {
 const myModal = new MyModal();
 
 socket.on('procesado', (data) => {
-  myModal.modalContent.innerHTML = `<img src="static/radiosondeos/prueba_${data.lat}_${data.lng}_15.png" />`
+  myModal.modalContent.innerHTML = `<img src="static/radiosondeos/prueba_${data.lat}_${data.lng}_${data.hora}.png" />`
   myModal.data = data;
 });
 

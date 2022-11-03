@@ -10,10 +10,19 @@ from xhtml2pdf import pisa
 from jinja2 import Template
 from radiosondeo import *
 
-def convertHtmlToPdf(lng, lat): 
+def convertHtmlToPdf(data): 
+    print(data)
     outputFilename = "static/test.pdf"
     texto = 'esto es un ejemplo de texto'
-    data = {'url' : 'static/radiosondeos/prueba_{}_{}_15.png'.format(lat, lng), 'pie_pagina': texto} 
+    data = {
+            'lat' : data['lat'], 
+            'lng': data['lng'], 
+            'alt': 0,
+            'lugar': texto,
+            'municipio': '-',
+            'provincia': '-',
+            'fechas': data['fechas']
+            } 
 
     resultFile = open(outputFilename, "w+b")
     template = Template(open('static/template.html').read()) 
@@ -41,11 +50,17 @@ def handle_loc( data ):
     print( data )
     #meteograma([data['lng'], data['lat']])
     fechas = radiosondeo(data['lat'], data['lng'])
-    emit('procesado', data)
+    datos = {
+            'lat': data['lat'],
+            'lng': data['lng'],
+            'hora': fechas[0].strftime('%H'),
+            'fechas': list(map(lambda x: x.strftime('%H'), fechas))
+            }
+    emit('procesado', datos)
 
 @socketio.on('pdf')
 def handle_pdf( data ):
-    convertHtmlToPdf(data['lng'], data['lat'])
+    convertHtmlToPdf(data)
     emit('descargar_pdf')
 
 if __name__ == '__main__':
