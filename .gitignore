@@ -1,4 +1,4 @@
 venv/
 *pyc
-radiosondeos/*.png
+static/radiosondeos/*.png
 static/test.pdf
