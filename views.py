@@ -9,9 +9,11 @@ import matplotlib.pyplot as plt
 from xhtml2pdf import pisa
 from jinja2 import Template
 from radiosondeo import *
+from municipios import *
+import datetime
 
 def convertHtmlToPdf(data): 
-    print(data)
+    print('prueba')
     outputFilename = "static/test.pdf"
     texto = 'esto es un ejemplo de texto'
     data = {
@@ -19,9 +21,10 @@ def convertHtmlToPdf(data):
             'lng': data['lng'], 
             'alt': 0,
             'lugar': texto,
-            'municipio': '-',
-            'provincia': '-',
-            'fechas': data['fechas']
+            'municipio': data['municipio'],
+            'provincia': data['provincia'],
+            'fechas': data['fechas'],
+            'hoy': datetime.datetime.now().strftime('%d/%m/%Y')
             } 
 
     resultFile = open(outputFilename, "w+b")
@@ -47,14 +50,16 @@ def download():
     
 @socketio.on('localizacion')
 def handle_loc( data ):
-    print( data )
     #meteograma([data['lng'], data['lat']])
     fechas = radiosondeo(data['lat'], data['lng'])
+    municipio, provincia = get_municipio( data['lat'], data['lng'] )
     datos = {
             'lat': data['lat'],
             'lng': data['lng'],
             'hora': fechas[0].strftime('%H'),
-            'fechas': list(map(lambda x: x.strftime('%H'), fechas))
+            'fechas': list(map(lambda x: x.strftime('%H'), fechas)),
+            'municipio': municipio,
+            'provincia': provincia
             }
     emit('procesado', datos)
 

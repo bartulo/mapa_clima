@@ -1,11 +1,39 @@
 var map = L.map('map', {
+  drawControl: true,
   center: [40.0, -3],
   zoom: 6
 });
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+var basemaps = {
+  'OSM': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }),
+  'Topográfico': L.tileLayer.wms('https://www.ign.es/wms-inspire/mapa-raster', {
+        layers: 'mtn_rasterizado'
+  }),
+  'Ortofoto': L.tileLayer.wms('https://www.ign.es/wms-inspire/pnoa-ma', {
+        layers: 'OI.OrthoimageCoverage'
+  }),
+}
+
+L.control.layers(basemaps).addTo(map);
+
+basemaps.OSM.addTo(map);
+
+map.on(L.Draw.Event.CREATED, (event) => {
+  if ( event.layerType == 'marker' ) {
+
+    const latlng = event.layer._latlng;
+    const modalContent = document.querySelector('.modal-body');
+    modalContent.innerHTML = 'Procesando...';
+    modal.show();
+    socket.emit('localizacion', latlng);
+  } else if (event.layerType == 'polygon' ) {
+    map.addLayer(event.layer);
+    console.log(event.layer);
+  }
+
+});
 
 const socket = io();
 
@@ -34,12 +62,4 @@ socket.on('procesado', (data) => {
 
 socket.on('descargar_pdf', () => {
   window.open(`${window.location}/download`)
-});
-
-map.on('click', (e) => {
-  const modalContent = document.querySelector('.modal-body');
-  modalContent.innerHTML = 'Procesando...';
-  modal.show();
-  socket.emit('localizacion', e.latlng);
-  console.log(e.latlng.lat);
 });
