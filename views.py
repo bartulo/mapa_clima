@@ -1,52 +1,43 @@
-from flask import Flask, render_template, send_file, redirect
-from flask_socketio import SocketIO
-from flask_socketio import emit
+from flask import Flask, render_template, send_file, redirect, url_for
+from flask_socketio import SocketIO, emit
 import datetime
-import math 
-import metpy.calc
-from metpy.units import units
-import matplotlib.pyplot as plt
-from xhtml2pdf import pisa
-from jinja2 import Template
 from radiosondeo import *
 from municipios import *
-import datetime
+from htmlToPdf import *
+import geopandas as gpd
+import pandas as pd 
+from geopy.geocoders import Nominatim
 
-def convertHtmlToPdf(data): 
-    print('prueba')
-    outputFilename = "static/test.pdf"
-    texto = 'esto es un ejemplo de texto'
-    data = {
-            'lat' : data['lat'], 
-            'lng': data['lng'], 
-            'alt': 0,
-            'lugar': texto,
-            'municipio': data['municipio'],
-            'provincia': data['provincia'],
-            'fechas': data['fechas'],
-            'hoy': datetime.datetime.now().strftime('%d/%m/%Y')
-            } 
-
-    resultFile = open(outputFilename, "w+b")
-    template = Template(open('static/template.html').read()) 
-    html  = template.render(data) 
-
-    pisaStatus = pisa.CreatePDF(
-            html,
-            dest=resultFile)
-    resultFile.close()
-    return pisaStatus.err
+pd.options.display.float_format = '${:,.2f}'.format
 
 app = Flask(__name__)
 socketio = SocketIO(app)
 
+effis_file = gpd.read_file('static/capas/effis/effis.shp')
+
 @app.route('/')
 def root():
-    return render_template('mapa.html')
+    global effis_file
+     #effis_file = effis_file[effis_file.PROVINCE == 'Navarra']
+    effis = effis_file.to_crs(4326)
+    egif_navarra_file = gpd.read_file('static/capas/egif_navarra/egif_navarra.shp')
+    egif_navarra = egif_navarra_file.to_crs(4326)
+    return render_template('mapa.html', data={ 
+        'effis': effis.to_json(),
+        'egif_navarra': egif_navarra.to_json()
+        })
 
 @app.route('/download')
 def download():
     return send_file('static/test.pdf', as_attachment=True)
+
+@app.route('/incendio/<num>')
+def incendio(num):
+    global effis_file 
+    i = effis_file[effis_file.id == num]
+    print(i)
+#    return render_template('incendio.html', incendio=i.to_dict(orient='records')[0]) 
+    return render_template('incendio.html', incendio=i.drop(columns=['geometry']).to_html(index=False, float_format= lambda x: "{:.2f}".format(x))) 
     
 @socketio.on('localizacion')
 def handle_loc( data ):
@@ -67,6 +58,12 @@ def handle_loc( data ):
 def handle_pdf( data ):
     convertHtmlToPdf(data)
     emit('descargar_pdf')
+
+@socketio.on('nominatim')
+def nominatim( data ):
+    salida = requests.get('https://nominatim.openstreetmap.org/search?format=json&namedetails=1&addressdetails=1&q={}'.format(data))
+    print(salida)
+    emit('listado_nominatim', salida.text)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

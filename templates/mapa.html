@@ -18,6 +18,7 @@
 </head>
 
 <body>
+  <button id="buscar" style="position:absolute; top:250px; left:20px; z-index:999" type="button" class="btn btn-success">Buscar</button>
   <div id="map"></div>
   <div id="modal" class="modal" tabindex="-1">
     <div class="modal-dialog">
@@ -37,6 +38,31 @@
     </div>
   </div>
 
+  <div id="modalSearch" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="input-group">
+            <input id="inputSearch" type="text" class="form-control" aria-label="Text input with dropdown button">
+            <div class="input-group-append">
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"> Listado de lugares </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    const data = {{ data|tojson|safe }}
+  </script>
   <script src="{{ url_for('static', filename='js/mapa.js') }}" /></script>
 </body>
 </html>
