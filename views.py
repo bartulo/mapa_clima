@@ -13,18 +13,12 @@ pd.options.display.float_format = '${:,.2f}'.format
 app = Flask(__name__)
 socketio = SocketIO(app)
 
-effis_file = gpd.read_file('static/capas/effis/effis.shp')
-
 @app.route('/')
 def root():
-    global effis_file
-     #effis_file = effis_file[effis_file.PROVINCE == 'Navarra']
-    effis = effis_file.to_crs(4326)
-    egif_navarra_file = gpd.read_file('static/capas/egif_navarra/egif_navarra.shp')
-    egif_navarra = egif_navarra_file.to_crs(4326)
+    historico_andalucia = gpd.read_file('static/capas/historico_andalucia/PERIMETROS_COR_2008_2021.shp')
+    historico = historico_andalucia.to_crs(4326)
     return render_template('mapa.html', data={ 
-        'effis': effis.to_json(),
-        'egif_navarra': egif_navarra.to_json()
+        'historico': historico.to_json()
         })
 
 @app.route('/download')

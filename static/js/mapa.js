@@ -82,27 +82,16 @@ function historicoOnEachFeature(feature, layer){
   });
 }
 
-const effis_group = L.layerGroup().addTo(map);
-const egif_group = L.layerGroup().addTo(map);
+const historico_group = L.layerGroup().addTo(map);
 
-const effis = JSON.parse(data.effis);
-L.geoJson(effis, {
+const historico = JSON.parse(data.historico);
+L.geoJson(historico, {
   style: {color: 'red'},
   onEachFeature: historicoOnEachFeature
-}).addTo(effis_group);
-
-const egif = JSON.parse(data.egif_navarra);
-L.geoJson(egif, {
-  pointToLayer: function (feature, latlng) {
-    return L.circleMarker(latlng, {
-      radius: feature.properties.SUPERFICIE / 10,
-    });
-  }
-}).addTo(egif_group);
+}).addTo(historico_group);
 
 const overlayMaps = {
-  'EFFIS': effis_group,
-  'EGIF_Navarra': egif_group
+  'Histórico': historico_group,
 }
 
 let layerControl = L.control.layers(basemaps, overlayMaps).addTo(map);
