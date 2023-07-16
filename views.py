@@ -6,7 +6,6 @@ from municipios import *
 from htmlToPdf import *
 import geopandas as gpd
 import pandas as pd 
-from geopy.geocoders import Nominatim
 
 pd.options.display.float_format = '${:,.2f}'.format
 
@@ -15,8 +14,9 @@ socketio = SocketIO(app)
 
 @app.route('/')
 def root():
-    historico_andalucia = gpd.read_file('static/capas/historico_andalucia/PERIMETROS_COR_2008_2021.shp')
-    historico = historico_andalucia.to_crs(4326)
+    global effis_file 
+    effis_file = gpd.read_file('static/capas/effis/effis.shp')
+    historico = effis_file.to_crs(4326)
     return render_template('mapa.html', data={ 
         'historico': historico.to_json()
         })
@@ -27,7 +27,6 @@ def download():
 
 @app.route('/incendio/<num>')
 def incendio(num):
-    global effis_file 
     i = effis_file[effis_file.id == num]
     print(i)
 #    return render_template('incendio.html', incendio=i.to_dict(orient='records')[0]) 
