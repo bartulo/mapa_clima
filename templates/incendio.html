@@ -1,1 +1,4 @@
 {{ incendio | safe }}
+{{ incendio.FIREDATE.split('-')[0] }}
+<img src="https://www.wetterzentrale.de/maps/archive/{{ incendio.FIREDATE.split('-')[0] }}/cfsr/CFSR_1_{{ incendio.FIREDATE.split(' ')[0].split('-') |  join('') }}18_1.png" />
+<img src="https://www.wetterzentrale.de/maps/archive/{{ incendio.FIREDATE.split('-')[0] }}/cfsr/CFSR_1_{{ incendio.FIREDATE.split(' ')[0].split('-') |  join('') }}18_2.png" />

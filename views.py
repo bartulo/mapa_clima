@@ -29,8 +29,8 @@ def download():
 def incendio(num):
     i = effis_file[effis_file.id == num]
     print(i)
-#    return render_template('incendio.html', incendio=i.to_dict(orient='records')[0]) 
-    return render_template('incendio.html', incendio=i.drop(columns=['geometry']).to_html(index=False, float_format= lambda x: "{:.2f}".format(x))) 
+    return render_template('incendio.html', incendio=i.to_dict(orient='records')[0]) 
+ #   return render_template('incendio.html', incendio=i.drop(columns=['geometry']).to_html(index=False, float_format= lambda x: "{:.2f}".format(x))) 
     
 @socketio.on('localizacion')
 def handle_loc( data ):
