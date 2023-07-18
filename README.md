@@ -6,6 +6,9 @@ Para instalar usando docker y crear un servidor local seguir los siguientes paso
 git clone https://github.com/bartulo/mapa_clima.git
 ```
 
+```
+cd mapa_clima
+```
 
 ```
 docker build -t mapa_clima .
