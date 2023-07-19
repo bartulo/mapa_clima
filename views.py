@@ -6,11 +6,26 @@ from municipios import *
 from htmlToPdf import *
 import geopandas as gpd
 import pandas as pd 
+from PIL import Image
+from io import BytesIO
+import requests
 
 pd.options.display.float_format = '${:,.2f}'.format
 
 app = Flask(__name__)
 socketio = SocketIO(app)
+
+def create_gif(fecha):
+    f = datetime.datetime.strptime(fecha, '%Y-%m-%d')
+    frames =[]
+    for i in (f - datetime.timedelta(days=n) for n in range(2, -1, -1)):
+        for j in ['00', '06', '12', '18']:
+            response = requests.get(f'https://www.wetterzentrale.de/maps/archive/{datetime.datetime.strftime(i, "%Y")}/cfsr/CFSR_1_{datetime.datetime.strftime(i,"%Y%m%d")}{j}_1.png')
+            frames.append(Image.open(BytesIO(response.content)))
+
+    frame_one = frames[0]
+    frame_one.save("static/500hpa.gif", format="GIF", append_images=frames,
+               save_all=True, duration=300, loop=0)
 
 @app.route('/')
 def root():
@@ -27,9 +42,9 @@ def download():
 
 @app.route('/incendio/<num>')
 def incendio(num):
-    i = effis_file[effis_file.id == num]
-    print(i)
-    return render_template('incendio.html', incendio=i.to_dict(orient='records')[0]) 
+    inc= effis_file[effis_file.id == num]
+    create_gif(inc.FIREDATE.iloc[0].split(' ')[0])
+    return render_template('incendio.html', incendio=inc.to_dict(orient='records')[0]) 
  #   return render_template('incendio.html', incendio=i.drop(columns=['geometry']).to_html(index=False, float_format= lambda x: "{:.2f}".format(x))) 
     
 @socketio.on('localizacion')
